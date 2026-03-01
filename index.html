@@ -1,0 +1,844 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WGLT Black History Wordle (Scrollable Board)</title>
+  <style>
+    :root{
+      --bg:#0b0d12;
+      --text:#f4f6ff;
+      --muted:#aab2c5;
+
+      /* Pan-African accents */
+      --red:#e53935;
+      --gold:#f6c343;
+      --green:#22c55e;
+
+      /* Tile colors */
+      --correct:#22c55e;
+      --present:#f6c343;
+      --absent:#2a3040;
+      --tileBorder:#2c3346;
+
+      --shadow: 0 14px 34px rgba(0,0,0,.45);
+      --radius: 18px;
+
+      /* Keyboard sizes */
+      --keyH: clamp(38px, 8.5vw, 48px);
+      --keyW: clamp(30px, 7.2vw, 44px);
+      --keyFont: clamp(12px, 3.4vw, 14px);
+
+      /* Tile sizing (stable) */
+      --gap: 10px;
+      --tile: clamp(38px, 10.5vw, 58px); /* slightly smaller max helps phones */
+      --tileFont: clamp(14px, 4.2vw, 20px);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 10% 10%, rgba(229,57,53,.10), transparent 60%),
+        radial-gradient(900px 500px at 90% 30%, rgba(246,195,67,.10), transparent 60%),
+        radial-gradient(900px 500px at 50% 95%, rgba(34,197,94,.10), transparent 55%),
+        linear-gradient(180deg, #070910, var(--bg));
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+
+    .app{
+      width:min(1100px, 100%);
+      background: linear-gradient(180deg, rgba(16,20,29,.92), rgba(10,12,18,.92));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .stripe{
+      height:10px;
+      background: linear-gradient(90deg, var(--red), var(--gold), var(--green));
+      filter:saturate(1.15);
+    }
+
+    header{
+      padding:16px 16px 12px 16px;
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      flex-wrap:wrap;
+    }
+
+    .titleWrap{ display:flex; flex-direction:column; gap:6px; max-width: 720px; }
+    .title{
+      display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+      font-weight:950; letter-spacing:.5px; text-transform:uppercase; font-size:18px;
+    }
+    .badge{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color:var(--muted);
+    }
+    .sub{ font-size:13px; color:var(--muted); line-height:1.3; }
+
+    .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+
+    /* Dropdown fix */
+    .select{
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:#ffffff;
+      color:#000000;
+      font-weight:900;
+      outline:none;
+      cursor:pointer;
+    }
+    .select option{ color:#000000; background:#ffffff; }
+
+    .pill{
+      display:flex; gap:8px; align-items:center;
+      padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color:var(--muted);
+      font-size:12px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .pill strong{ color:var(--text); font-weight:950; }
+
+    .btn{
+      cursor:pointer; border:none; outline:none; border-radius:12px;
+      padding:10px 12px; color:var(--text);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 10px 22px rgba(0,0,0,.28);
+      font-weight:900;
+      letter-spacing:.2px;
+      user-select:none;
+    }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+
+    main{
+      padding:16px;
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap:16px;
+    }
+    @media (max-width: 900px){ main{ grid-template-columns: 1fr; } }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding:14px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.28);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(200px 120px at 10% 10%, rgba(229,57,53,.12), transparent 60%),
+        radial-gradient(220px 140px at 80% 20%, rgba(246,195,67,.12), transparent 60%),
+        radial-gradient(220px 140px at 30% 90%, rgba(34,197,94,.12), transparent 60%);
+      opacity:.9; pointer-events:none;
+    }
+    .card > *{ position:relative; }
+
+    .gridWrap{
+      display:flex; flex-direction:column; gap:12px;
+      align-items:center; justify-content:flex-start;
+      min-height:460px;
+      width:100%;
+    }
+
+    /* ✅ Hint box fix: no cut-off */
+    .hintLine{ width:100%; display:flex; gap:10px; flex-wrap:wrap; }
+    .hintBox{
+      flex: 1 1 100%;
+      min-width: 0;
+      max-width: 100%;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+      white-space: normal;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .hintBox strong{ color:var(--text); }
+
+    /* =========================================================
+       ✅ SCROLLABLE BOARD CONTAINER
+       - Lets players swipe left/right if word doesn't fit
+       ========================================================= */
+    .gridScroll{
+      width:100%;
+      max-width: 720px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 8px 6px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.12);
+      position:relative;
+      scroll-snap-type: x proximity;
+      touch-action: pan-x; /* ✅ makes horizontal swipe feel natural */
+    }
+
+    /* Subtle edge fades to signal "this scrolls" */
+    .gridScroll::before,
+    .gridScroll::after{
+      content:"";
+      position:absolute;
+      top:0; bottom:0;
+      width:22px;
+      pointer-events:none;
+      opacity:.9;
+    }
+    .gridScroll::before{
+      left:0;
+      background: linear-gradient(90deg, rgba(11,13,18,.95), rgba(11,13,18,0));
+    }
+    .gridScroll::after{
+      right:0;
+      background: linear-gradient(270deg, rgba(11,13,18,.95), rgba(11,13,18,0));
+    }
+
+    .grid{
+      display:grid;
+      gap: var(--gap);
+      justify-content:start; /* ✅ grid lays out naturally inside scroll area */
+      align-content:center;
+      padding:10px;
+      width:max-content;     /* ✅ key: let grid be wider than container */
+      scroll-snap-align: start;
+    }
+
+    .tile{
+      width: var(--tile);
+      height: var(--tile);
+      border-radius:14px;
+      border:1px solid var(--tileBorder);
+      background: rgba(12,14,18,.8);
+      display:flex; align-items:center; justify-content:center;
+      font-size: var(--tileFont);
+      font-weight:950; letter-spacing:.8px; text-transform:uppercase;
+      user-select:none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+      scroll-snap-align: start;
+    }
+    .tile.filled{
+      border-color: rgba(246,195,67,.35);
+      box-shadow: 0 0 0 2px rgba(246,195,67,.10), inset 0 0 0 1px rgba(255,255,255,.03);
+    }
+    .tile.correct{ background: rgba(34,197,94,.92); border-color: rgba(34,197,94,.9); color:#06110a; }
+    .tile.present{ background: rgba(246,195,67,.92); border-color: rgba(246,195,67,.9); color:#1a1202; }
+    .tile.absent{ background: rgba(42,48,64,.92); border-color: rgba(42,48,64,.9); color: rgba(255,255,255,.78); }
+
+    .message{ min-height:20px; text-align:center; color:var(--muted); font-size:13px; margin-top:2px; }
+    .message.warn{ color: rgba(246,195,67,.95); }
+
+    /* Tap pad */
+    .pad{ display:flex; flex-direction:column; gap:10px; margin-top:10px; width:min(620px, 100%); }
+    .padRow{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; overflow-x:hidden; }
+
+    .key{
+      cursor:pointer; user-select:none; border:none; outline:none;
+      border-radius:14px;
+      min-width: var(--keyW);
+      height: var(--keyH);
+      padding: 10px 10px;
+      font-size: var(--keyFont);
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--text);
+      font-weight:950; letter-spacing:.4px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.22);
+      white-space:nowrap;
+    }
+    .key.big{ min-width: clamp(70px, 16vw, 92px); }
+    .key.red{ background: rgba(229,57,53,.15); border-color: rgba(229,57,53,.35); }
+    .key.green{ background: rgba(34,197,94,.15); border-color: rgba(34,197,94,.35); }
+    .key:active{ transform: translateY(1px) scale(.99); }
+
+    .legend{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:6px; color:var(--muted); font-size:12px; align-items:center;
+    }
+    .dot{ width:12px;height:12px;border-radius:4px;display:inline-block; border:1px solid rgba(255,255,255,.10); }
+    .dot.c{ background: rgba(34,197,94,.92); }
+    .dot.p{ background: rgba(246,195,67,.92); }
+    .dot.a{ background: rgba(42,48,64,.92); }
+
+    /* Stats */
+    .score h3{ margin:0; font-size:14px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); }
+    .statsGrid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; margin-top:10px; }
+    .stat{
+      padding:12px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+    }
+    .stat .label{ font-size:12px; color:var(--muted); margin-bottom:4px; }
+    .stat .value{ font-size:20px; font-weight:950; letter-spacing:.3px; }
+
+    .badgeBox{
+      margin-top:10px;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+    }
+    .badgeGrid{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .bchip{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:10px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .bchip strong{ color:var(--text); }
+    .lvl{
+      padding:5px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      font-weight:950;
+      font-size:11px;
+      white-space:nowrap;
+    }
+
+    /* Modal */
+    .overlay{
+      position:fixed; inset:0; background: rgba(0,0,0,.62);
+      display:none; align-items:center; justify-content:center; padding:18px; z-index:9999;
+    }
+    .overlay.show{ display:flex; }
+    .modal{
+      width:min(760px, 100%);
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(18,22,33,.96), rgba(8,10,16,.96));
+      box-shadow: 0 22px 60px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .modal .stripe{ height:12px; }
+    .modalBody{ padding:16px; }
+    .modalTitle{ font-size:18px; font-weight:950; margin:0 0 6px 0; }
+    .modalSub{ margin:0 0 12px 0; color:var(--muted); line-height:1.4; font-size:14px; }
+    .modalBio{
+      margin:0; line-height:1.5;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:12px 14px;
+      color: var(--text);
+    }
+    .modalActions{
+      padding:14px 16px 16px 16px;
+      display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
+      border-top:1px solid rgba(255,255,255,.06);
+    }
+
+    @media (max-width: 520px){
+      header{ padding: 12px; }
+      main{ padding: 12px; gap: 12px; }
+      .card{ padding: 12px; }
+      .pad{ gap: 8px; }
+      .hintBox{ font-size: 12px; }
+      :root{ --gap: 8px; } /* a little tighter on phones */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="stripe"></div>
+
+    <header>
+      <div class="titleWrap">
+        <div class="title">
+          WGLT Black History Wordle
+          <span class="badge">Practice Mode • Tap Only • Scroll Board</span>
+        </div>
+        <div class="sub">
+          Guess the <strong>LAST NAME</strong>. If the name is long on your phone, <strong>swipe the board</strong> left/right.
+        </div>
+      </div>
+
+      <div class="controls">
+        <select id="difficulty" class="select">
+          <option value="elem">Elementary</option>
+          <option value="hs">High School</option>
+        </select>
+
+        <div class="pill">Length: <strong id="lenLabel">–</strong></div>
+
+        <button class="btn" id="btnHint" type="button">Hint</button>
+        <button class="btn" id="btnNew" type="button">New Figure</button>
+        <button class="btn" id="btnResetStats" type="button">Reset Stats</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <div class="gridWrap" id="gridWrap">
+          <div class="hintLine">
+            <div class="hintBox" id="hintBox">
+              <strong>Hint:</strong> Tap <strong>Hint</strong> for a clue (optional).
+            </div>
+          </div>
+
+          <!-- ✅ Scroll container -->
+          <div class="gridScroll" id="gridScroll" aria-label="Swipe board to see all letters">
+            <div class="grid" id="grid"></div>
+          </div>
+
+          <div class="message" id="message"></div>
+
+          <div class="pad" aria-label="Letter pad">
+            <div class="padRow" id="row1"></div>
+            <div class="padRow" id="row2"></div>
+            <div class="padRow" id="row3"></div>
+          </div>
+
+          <div class="legend">
+            <span class="dot c"></span> Correct place
+            <span class="dot p"></span> In the name
+            <span class="dot a"></span> Not in the name
+          </div>
+        </div>
+      </section>
+
+      <aside class="card score">
+        <h3>Streak & Stats</h3>
+
+        <div class="statsGrid">
+          <div class="stat"><div class="label">Played</div><div class="value" id="sPlayed">0</div></div>
+          <div class="stat"><div class="label">Wins</div><div class="value" id="sWins">0</div></div>
+          <div class="stat"><div class="label">Current Streak</div><div class="value" id="sStreak">0</div></div>
+          <div class="stat"><div class="label">Best Streak</div><div class="value" id="sBest">0</div></div>
+        </div>
+
+        <div class="badgeBox">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+            <strong style="color:var(--text);">Badges (wins per category)</strong>
+            <span style="color:var(--muted); font-size:12px;">3 Bronze • 5 Silver • 7 Gold</span>
+          </div>
+
+          <div class="badgeGrid" id="badgeGrid"></div>
+        </div>
+
+        <div class="hintBox" style="margin-top:10px;">
+          <strong>How to play:</strong><br/>
+          Tap letters to fill a row, then tap <strong>Enter</strong>. Use <strong>Back</strong> to delete. You get 6 tries.
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="stripe"></div>
+      <div class="modalBody">
+        <h2 class="modalTitle" id="modalTitle">You got it!</h2>
+        <p class="modalSub" id="modalSub"></p>
+        <p class="modalBio" id="modalBio"></p>
+      </div>
+      <div class="modalActions">
+        <button class="btn" id="btnClose" type="button">Close</button>
+        <button class="btn" id="btnNext" type="button">Next Figure</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ============================================================
+   CATEGORY DEFINITIONS
+   ============================================================ */
+const CATEGORY_DEFS = {
+  "Civil Rights": "People and events that worked to end discrimination and protect equal rights and fair treatment.",
+  "STEM": "Scientists, engineers, doctors, and inventors who advanced knowledge and technology.",
+  "Arts": "Creators and performers who shaped culture through music, writing, film, and visual art.",
+  "Sports": "Athletes and sports leaders whose excellence and impact inspired others.",
+  "Politics": "Government leaders who shaped laws, policies, and public systems.",
+  "History": "Scholars and change-makers who shaped how we understand the past.",
+  "Military": "Service members and leaders who served with distinction and broke barriers.",
+  "Business": "Entrepreneurs and leaders who built organizations and influenced industries."
+};
+const ALL_BADGE_CATEGORIES = ["Civil Rights","STEM","Arts","Sports","Politics","History","Military","Business"];
+
+/* ============================================================
+   STARTER ROSTER (add your larger list)
+   ============================================================ */
+const FIGURES = [
+  {lastName:"PARKS", fullName:"Rosa Parks", category:"Civil Rights", elemInitial:"R", elemBio:"She refused to give up her bus seat and helped change unfair rules.", hsBio:"Her 1955 arrest helped spark the Montgomery Bus Boycott and energized the Civil Rights Movement."},
+  {lastName:"KING", fullName:"Martin Luther King Jr.", category:"Civil Rights", elemInitial:"M", elemBio:"He led peaceful marches and gave the “I Have a Dream” speech.", hsBio:"A leader of nonviolent protest whose organizing helped advance civil rights legislation and public support."},
+  {lastName:"CARVER", fullName:"George Washington Carver", category:"STEM", elemInitial:"G", elemBio:"He helped farmers grow better crops.", hsBio:"A scientist who promoted crop rotation and developed many practical uses for plants."},
+  {lastName:"JEMISON", fullName:"Mae Jemison", category:"STEM", elemInitial:"M", elemBio:"She became an astronaut and inspired kids to dream big.", hsBio:"The first Black woman in space, combining science leadership with education advocacy."},
+  {lastName:"HUGHES", fullName:"Langston Hughes", category:"Arts", elemInitial:"L", elemBio:"He wrote poems that celebrated Black life.", hsBio:"A Harlem Renaissance leader whose poetry captured culture, humor, and everyday resilience."},
+  {lastName:"ROBINSON", fullName:"Jackie Robinson", category:"Sports", elemInitial:"J", elemBio:"He helped end unfair rules in baseball.", hsBio:"He broke MLB’s color barrier in 1947, changing sports history under intense pressure."},
+  {lastName:"OBAMA", fullName:"Barack Obama", category:"Politics", elemInitial:"B", elemBio:"He became the first Black U.S. President.", hsBio:"The first Black U.S. president, whose elections marked a major milestone and whose administration shaped policy debates."},
+  {lastName:"DAVIS", fullName:"Benjamin O. Davis Jr.", category:"Military", elemInitial:"B", elemBio:"He was a pilot leader who served bravely.", hsBio:"A Tuskegee Airmen leader who broke barriers in military aviation and command."},
+  {lastName:"SMITH", fullName:"Robert F. Smith", category:"Business", elemInitial:"R", elemBio:"He built a business and helps students and schools.", hsBio:"An entrepreneur and investor known for major philanthropy supporting education and opportunity."},
+];
+
+function normalizeEntry(f){
+  return {
+    lastName: String(f.lastName || "").toUpperCase().replace(/[^A-Z]/g,""),
+    fullName: String(f.fullName || "").trim(),
+    category: String(f.category || "History").trim(),
+    elemInitial: String(f.elemInitial || "").trim(),
+    elemBio: String(f.elemBio || "").trim(),
+    hsBio: String(f.hsBio || "").trim(),
+  };
+}
+function buildPool(difficulty){
+  const seen = new Set();
+  const pool = [];
+  for(const raw of FIGURES){
+    const f = normalizeEntry(raw);
+    if(!/^[A-Z]{4,8}$/.test(f.lastName)) continue;
+    if(!f.fullName || !f.hsBio) continue;
+    if(difficulty === "elem" && !f.elemBio) continue;
+    if(!ALL_BADGE_CATEGORIES.includes(f.category)) continue;
+    if(seen.has(f.lastName)) continue;
+    seen.add(f.lastName);
+    pool.push(f);
+  }
+  return pool;
+}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+const STORAGE_KEY = "WGLT_BH_WORDLE_SCROLLBOARD_V1";
+const DEFAULT_STATS = {
+  played:0, wins:0, streak:0, best:0,
+  badges: Object.fromEntries(ALL_BADGE_CATEGORIES.map(c => [c, 0]))
+};
+function loadStats(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return structuredClone(DEFAULT_STATS);
+    const s = JSON.parse(raw);
+    const merged = structuredClone(DEFAULT_STATS);
+    merged.played = s.played ?? 0;
+    merged.wins = s.wins ?? 0;
+    merged.streak = s.streak ?? 0;
+    merged.best = s.best ?? 0;
+    merged.badges = { ...merged.badges, ...(s.badges || {}) };
+    return merged;
+  }catch(e){ return structuredClone(DEFAULT_STATS); }
+}
+function saveStats(s){ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+function badgeLevel(n){ return (n>=7)?"Gold":(n>=5)?"Silver":(n>=3)?"Bronze":"Starter"; }
+
+function renderBadges(){
+  const s = loadStats();
+  const grid = document.getElementById("badgeGrid");
+  grid.innerHTML = "";
+  for(const cat of ALL_BADGE_CATEGORIES){
+    const count = s.badges[cat] || 0;
+    const lvl = badgeLevel(count);
+    const div = document.createElement("div");
+    div.className = "bchip";
+    div.innerHTML = `<div><strong>${cat}</strong><div style="font-size:11px; opacity:.9;">Wins: ${count}</div></div><span class="lvl">${lvl}</span>`;
+    grid.appendChild(div);
+  }
+}
+function renderStats(){
+  const s = loadStats();
+  document.getElementById("sPlayed").textContent = s.played;
+  document.getElementById("sWins").textContent = s.wins;
+  document.getElementById("sStreak").textContent = s.streak;
+  document.getElementById("sBest").textContent = s.best;
+  renderBadges();
+}
+
+/* ============================================================
+   GAME CORE
+   ============================================================ */
+const MAX_ROWS = 6;
+let pool = [];
+let figure = null;
+let answer = "";
+let wordLen = 5;
+let row = 0, col = 0;
+let board = [];
+let locked = false;
+let hintShown = false;
+
+const $ = (id) => document.getElementById(id);
+
+function setMessage(text, kind=""){
+  const el = $("message");
+  el.textContent = text || "";
+  el.className = "message" + (kind ? " " + kind : "");
+}
+function setHintBox(html){
+  $("hintBox").innerHTML = `<strong>Hint:</strong> ${html}`;
+}
+function pickRandomFigure(){
+  if(pool.length < 5) throw new Error("Roster too small after filtering. Add more figures.");
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function buildGrid(){
+  const grid = $("grid");
+  grid.innerHTML = "";
+
+  // ✅ grid width is max-content so it can overflow and scroll
+  grid.style.gridTemplateColumns = `repeat(${wordLen}, var(--tile))`;
+
+  board = Array.from({length: MAX_ROWS}, () => Array.from({length: wordLen}, () => ""));
+  row = 0; col = 0;
+
+  for(let r=0; r<MAX_ROWS; r++){
+    for(let c=0; c<wordLen; c++){
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.id = `tile-${r}-${c}`;
+      grid.appendChild(tile);
+    }
+  }
+
+  // ✅ on long words, auto-scroll to start so first tile is visible
+  $("gridScroll").scrollLeft = 0;
+}
+
+function updateTile(r,c){
+  const t = $(`tile-${r}-${c}`);
+  const ch = board[r][c] || "";
+  t.textContent = ch;
+  t.classList.toggle("filled", !!ch);
+}
+
+function setRowColors(r, colors){
+  for(let c=0; c<wordLen; c++){
+    const t = $(`tile-${r}-${c}`);
+    t.classList.remove("correct","present","absent");
+    t.classList.add(colors[c]);
+  }
+}
+
+function buildPad(){
+  const r1 = $("row1"), r2 = $("row2"), r3 = $("row3");
+  r1.innerHTML = ""; r2.innerHTML = ""; r3.innerHTML = "";
+
+  const rows = [
+    ["Q","W","E","R","T","Y","U","I","O","P"],
+    ["A","S","D","F","G","H","J","K","L"],
+    ["ENTER","Z","X","C","V","B","N","M","BACK"]
+  ];
+
+  rows.forEach((letters, idx) => {
+    const host = idx===0 ? r1 : idx===1 ? r2 : r3;
+    letters.forEach(label => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "key";
+
+      if(label === "ENTER"){
+        btn.classList.add("big","green");
+        btn.textContent = "Enter";
+        btn.addEventListener("click", submitGuess);
+      } else if(label === "BACK"){
+        btn.classList.add("big","red");
+        btn.textContent = "Back";
+        btn.addEventListener("click", backspace);
+      } else {
+        btn.textContent = label;
+        btn.addEventListener("click", () => addLetter(label));
+      }
+      host.appendChild(btn);
+    });
+  });
+}
+
+function newGame(){
+  locked = false;
+  hintShown = false;
+  setMessage("");
+
+  const diff = $("difficulty").value;
+  pool = buildPool(diff);
+
+  figure = pickRandomFigure();
+  answer = figure.lastName;
+  wordLen = answer.length;
+  $("lenLabel").textContent = String(wordLen);
+
+  buildGrid();
+  buildPad();
+  setHintBox(`Tap <strong>Hint</strong> for a category clue (optional).`);
+}
+
+function addLetter(ch){
+  if(locked) return;
+  if(col >= wordLen) return;
+
+  board[row][col] = ch.toUpperCase();
+  updateTile(row,col);
+  col++;
+
+  // ✅ if user is filling far-right letters, help them by scrolling a bit
+  const sc = $("gridScroll");
+  const grid = $("grid");
+  const rightEdge = grid.scrollWidth;
+  const viewRight = sc.scrollLeft + sc.clientWidth;
+  if(viewRight < rightEdge && col >= Math.max(5, wordLen - 1)){
+    sc.scrollLeft = Math.max(0, rightEdge - sc.clientWidth);
+  }
+}
+
+function backspace(){
+  if(locked) return;
+  if(col <= 0) return;
+  col--;
+  board[row][col] = "";
+  updateTile(row,col);
+}
+
+function evaluateGuess(guess, ans){
+  const colors = Array(wordLen).fill("absent");
+  const counts = {};
+  for(let i=0;i<wordLen;i++){
+    const a = ans[i];
+    counts[a] = (counts[a] || 0) + 1;
+  }
+  for(let i=0;i<wordLen;i++){
+    if(guess[i] === ans[i]){
+      colors[i] = "correct";
+      counts[guess[i]]--;
+    }
+  }
+  for(let i=0;i<wordLen;i++){
+    if(colors[i] === "correct") continue;
+    const g = guess[i];
+    if(counts[g] > 0){
+      colors[i] = "present";
+      counts[g]--;
+    }
+  }
+  return colors;
+}
+
+function submitGuess(){
+  if(locked) return;
+  const incomplete = board[row].some(ch => !ch);
+  if(incomplete){
+    setMessage("Finish the row before pressing Enter.", "warn");
+    return;
+  }
+
+  const guess = board[row].join("");
+  setMessage("");
+
+  const colors = evaluateGuess(guess, answer);
+  setRowColors(row, colors);
+
+  if(guess === answer){ endGame(true); return; }
+
+  row++; col = 0;
+  $("gridScroll").scrollLeft = 0; // start of next row
+  if(row >= MAX_ROWS){ endGame(false); }
+}
+
+function showHint(){
+  if(hintShown){ setMessage("Hint already shown for this round.", "warn"); return; }
+  hintShown = true;
+
+  const diff = $("difficulty").value;
+  const def = CATEGORY_DEFS[figure.category] || "A category used to group similar figures for learning and badges.";
+  const initial = (diff === "elem" && figure.elemInitial) ? ` • First name starts with <strong>${figure.elemInitial}</strong>` : "";
+  setHintBox(`<strong>${figure.category}</strong>${initial}<br/><span style="opacity:.95">${def}</span>`);
+  setMessage("Hint revealed.");
+}
+
+/* Modal + Endgame */
+function showModal(win){
+  const diff = $("difficulty").value;
+  if(win){
+    $("modalTitle").textContent = "✅ Correct!";
+    $("modalSub").textContent = `${figure.fullName} • (${figure.category})`;
+    $("modalBio").textContent = (diff === "elem") ? figure.elemBio : figure.hsBio;
+  } else {
+    $("modalTitle").textContent = "❌ Out of tries";
+    $("modalSub").textContent = `Answer: ${answer} • ${figure.fullName} • (${figure.category})`;
+    $("modalBio").textContent = (diff === "elem") ? figure.elemBio : figure.hsBio;
+  }
+  $("overlay").classList.add("show");
+}
+function hideModal(){ $("overlay").classList.remove("show"); }
+
+function endGame(win){
+  locked = true;
+  const s = loadStats();
+  s.played += 1;
+
+  if(win){
+    s.wins += 1;
+    s.streak += 1;
+    s.best = Math.max(s.best, s.streak);
+    s.badges[figure.category] = (s.badges[figure.category] || 0) + 1;
+  } else {
+    s.streak = 0;
+  }
+
+  saveStats(s);
+  renderStats();
+  showModal(win);
+}
+
+/* Events */
+$("btnNew").addEventListener("click", () => { hideModal(); newGame(); });
+$("btnHint").addEventListener("click", showHint);
+$("btnResetStats").addEventListener("click", () => {
+  localStorage.removeItem(STORAGE_KEY);
+  renderStats();
+  setMessage("Stats reset.", "warn");
+});
+$("btnClose").addEventListener("click", hideModal);
+$("btnNext").addEventListener("click", () => { hideModal(); newGame(); });
+$("difficulty").addEventListener("change", () => { hideModal(); newGame(); });
+
+document.addEventListener("keydown", (e) => {
+  if(locked) return;
+  const k = e.key;
+  if(k === "Enter") submitGuess();
+  else if(k === "Backspace") backspace();
+  else if(/^[a-zA-Z]$/.test(k)) addLetter(k.toUpperCase());
+});
+
+renderStats();
+newGame();
+</script>
+</body>
+</html>
