@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>WGLT Black History Wordle (Scrollable Board)</title>
+  <title>WGLT Black History Wordle (Tap Fix + Scroll Board)</title>
   <style>
     :root{
       --bg:#0b0d12;
@@ -29,9 +29,9 @@
       --keyW: clamp(30px, 7.2vw, 44px);
       --keyFont: clamp(12px, 3.4vw, 14px);
 
-      /* Tile sizing (stable) */
+      /* Tile sizing */
       --gap: 10px;
-      --tile: clamp(38px, 10.5vw, 58px); /* slightly smaller max helps phones */
+      --tile: clamp(38px, 10.5vw, 58px);
       --tileFont: clamp(14px, 4.2vw, 20px);
     }
 
@@ -93,7 +93,6 @@
 
     .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
 
-    /* Dropdown fix */
     .select{
       padding:10px 10px;
       border-radius:12px;
@@ -160,13 +159,13 @@
     .card > *{ position:relative; }
 
     .gridWrap{
-      display:flex; flex-direction:column; gap:12px;
+      display:flex; flex-direction:column; gap:10px;
       align-items:center; justify-content:flex-start;
       min-height:460px;
       width:100%;
     }
 
-    /* ✅ Hint box fix: no cut-off */
+    /* Hint box: wraps and grows */
     .hintLine{ width:100%; display:flex; gap:10px; flex-wrap:wrap; }
     .hintBox{
       flex: 1 1 100%;
@@ -185,52 +184,67 @@
     }
     .hintBox strong{ color:var(--text); }
 
-    /* =========================================================
-       ✅ SCROLLABLE BOARD CONTAINER
-       - Lets players swipe left/right if word doesn't fit
-       ========================================================= */
+    /* Swipe helper chip */
+    .swipeHint{
+      display:none;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(246,195,67,.22);
+      background: rgba(246,195,67,.08);
+      color: rgba(246,195,67,.95);
+      font-weight:950;
+      letter-spacing:.2px;
+      font-size:12px;
+      user-select:none;
+      margin-top:2px;
+      animation: swipeBounce 1.25s ease-in-out infinite;
+      width: fit-content;
+      max-width: 100%;
+    }
+    .swipeHint.show{ display:flex; }
+
+    @keyframes swipeBounce{
+      0%   { transform: translateX(0); opacity:.88; }
+      45%  { transform: translateX(8px); opacity:1; }
+      90%  { transform: translateX(0); opacity:.92; }
+      100% { transform: translateX(0); opacity:.88; }
+    }
+
+    /* Scroll board (edge fade via mask, no seam) */
     .gridScroll{
       width:100%;
       max-width: 720px;
       overflow-x:auto;
       overflow-y:hidden;
       -webkit-overflow-scrolling: touch;
-      padding: 8px 6px;
+      padding: 6px 0;
       border-radius: 18px;
-      border:1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.12);
-      position:relative;
+      background: transparent;
       scroll-snap-type: x proximity;
-      touch-action: pan-x; /* ✅ makes horizontal swipe feel natural */
-    }
+      touch-action: pan-x;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+              mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 28px), transparent);
 
-    /* Subtle edge fades to signal "this scrolls" */
-    .gridScroll::before,
-    .gridScroll::after{
-      content:"";
-      position:absolute;
-      top:0; bottom:0;
-      width:22px;
-      pointer-events:none;
-      opacity:.9;
+      /* ✅ Prevent overscroll chaining into the page */
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+
+      /* ✅ Optional: hide scrollbar so it doesn't pop up */
+      scrollbar-width: none;
     }
-    .gridScroll::before{
-      left:0;
-      background: linear-gradient(90deg, rgba(11,13,18,.95), rgba(11,13,18,0));
-    }
-    .gridScroll::after{
-      right:0;
-      background: linear-gradient(270deg, rgba(11,13,18,.95), rgba(11,13,18,0));
-    }
+    .gridScroll::-webkit-scrollbar{ display:none; }
 
     .grid{
       display:grid;
       gap: var(--gap);
-      justify-content:start; /* ✅ grid lays out naturally inside scroll area */
+      justify-content:start;
       align-content:center;
-      padding:10px;
-      width:max-content;     /* ✅ key: let grid be wider than container */
-      scroll-snap-align: start;
+      padding:10px 12px;
+      width:max-content;
+      transform: translateZ(0);
     }
 
     .tile{
@@ -244,7 +258,6 @@
       font-weight:950; letter-spacing:.8px; text-transform:uppercase;
       user-select:none;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
-      scroll-snap-align: start;
     }
     .tile.filled{
       border-color: rgba(246,195,67,.35);
@@ -274,6 +287,10 @@
       font-weight:950; letter-spacing:.4px;
       box-shadow: 0 10px 20px rgba(0,0,0,.22);
       white-space:nowrap;
+
+      /* ✅ TAP FIXES */
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     .key.big{ min-width: clamp(70px, 16vw, 92px); }
     .key.red{ background: rgba(229,57,53,.15); border-color: rgba(229,57,53,.35); }
@@ -370,9 +387,8 @@
       header{ padding: 12px; }
       main{ padding: 12px; gap: 12px; }
       .card{ padding: 12px; }
-      .pad{ gap: 8px; }
       .hintBox{ font-size: 12px; }
-      :root{ --gap: 8px; } /* a little tighter on phones */
+      :root{ --gap: 8px; }
     }
   </style>
 </head>
@@ -385,10 +401,10 @@
       <div class="titleWrap">
         <div class="title">
           WGLT Black History Wordle
-          <span class="badge">Practice Mode • Tap Only • Scroll Board</span>
+          <span class="badge">Tap Only • Scroll Board • Mobile Tap Fix</span>
         </div>
         <div class="sub">
-          Guess the <strong>LAST NAME</strong>. If the name is long on your phone, <strong>swipe the board</strong> left/right.
+          Guess the <strong>LAST NAME</strong>. If the name is long, you can <strong>swipe the board</strong>.
         </div>
       </div>
 
@@ -415,7 +431,8 @@
             </div>
           </div>
 
-          <!-- ✅ Scroll container -->
+          <div class="swipeHint" id="swipeHint">Swipe the board ⟷</div>
+
           <div class="gridScroll" id="gridScroll" aria-label="Swipe board to see all letters">
             <div class="grid" id="grid"></div>
           </div>
@@ -495,7 +512,7 @@ const CATEGORY_DEFS = {
 const ALL_BADGE_CATEGORIES = ["Civil Rights","STEM","Arts","Sports","Politics","History","Military","Business"];
 
 /* ============================================================
-   STARTER ROSTER (add your larger list)
+   STARTER ROSTER (replace with your larger list)
    ============================================================ */
 const FIGURES = [
   {lastName:"PARKS", fullName:"Rosa Parks", category:"Civil Rights", elemInitial:"R", elemBio:"She refused to give up her bus seat and helped change unfair rules.", hsBio:"Her 1955 arrest helped spark the Montgomery Bus Boycott and energized the Civil Rights Movement."},
@@ -538,7 +555,7 @@ function buildPool(difficulty){
 /* ============================================================
    STATS
    ============================================================ */
-const STORAGE_KEY = "WGLT_BH_WORDLE_SCROLLBOARD_V1";
+const STORAGE_KEY = "WGLT_BH_WORDLE_TAPFIX_SCROLL_V1";
 const DEFAULT_STATS = {
   played:0, wins:0, streak:0, best:0,
   badges: Object.fromEntries(ALL_BADGE_CATEGORIES.map(c => [c, 0]))
@@ -605,6 +622,16 @@ function setMessage(text, kind=""){
 function setHintBox(html){
   $("hintBox").innerHTML = `<strong>Hint:</strong> ${html}`;
 }
+
+/* ✅ Swipe hint shows only if overflow exists */
+function updateSwipeHint(){
+  const sc = $("gridScroll");
+  const hint = $("swipeHint");
+  if(!sc || !hint) return;
+  const overflow = sc.scrollWidth > sc.clientWidth + 2;
+  hint.classList.toggle("show", overflow);
+}
+
 function pickRandomFigure(){
   if(pool.length < 5) throw new Error("Roster too small after filtering. Add more figures.");
   return pool[Math.floor(Math.random() * pool.length)];
@@ -613,8 +640,6 @@ function pickRandomFigure(){
 function buildGrid(){
   const grid = $("grid");
   grid.innerHTML = "";
-
-  // ✅ grid width is max-content so it can overflow and scroll
   grid.style.gridTemplateColumns = `repeat(${wordLen}, var(--tile))`;
 
   board = Array.from({length: MAX_ROWS}, () => Array.from({length: wordLen}, () => ""));
@@ -629,8 +654,12 @@ function buildGrid(){
     }
   }
 
-  // ✅ on long words, auto-scroll to start so first tile is visible
   $("gridScroll").scrollLeft = 0;
+
+  requestAnimationFrame(() => {
+    updateSwipeHint();
+    requestAnimationFrame(updateSwipeHint);
+  });
 }
 
 function updateTile(r,c){
@@ -648,6 +677,48 @@ function setRowColors(r, colors){
   }
 }
 
+function evaluateGuess(guess, ans){
+  const colors = Array(wordLen).fill("absent");
+  const counts = {};
+  for(let i=0;i<wordLen;i++){
+    const a = ans[i];
+    counts[a] = (counts[a] || 0) + 1;
+  }
+  for(let i=0;i<wordLen;i++){
+    if(guess[i] === ans[i]){
+      colors[i] = "correct";
+      counts[guess[i]]--;
+    }
+  }
+  for(let i=0;i<wordLen;i++){
+    if(colors[i] === "correct") continue;
+    const g = guess[i];
+    if(counts[g] > 0){
+      colors[i] = "present";
+      counts[g]--;
+    }
+  }
+  return colors;
+}
+
+/* ============================================================
+   ✅ TAP FIX: pointerdown/touchstart binding
+   ============================================================ */
+function bindTap(el, handler){
+  if (window.PointerEvent){
+    el.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      handler();
+    }, {passive:false});
+    return;
+  }
+  el.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    handler();
+  }, {passive:false});
+  el.addEventListener("click", handler);
+}
+
 function buildPad(){
   const r1 = $("row1"), r2 = $("row2"), r3 = $("row3");
   r1.innerHTML = ""; r2.innerHTML = ""; r3.innerHTML = "";
@@ -660,6 +731,7 @@ function buildPad(){
 
   rows.forEach((letters, idx) => {
     const host = idx===0 ? r1 : idx===1 ? r2 : r3;
+
     letters.forEach(label => {
       const btn = document.createElement("button");
       btn.type = "button";
@@ -668,15 +740,16 @@ function buildPad(){
       if(label === "ENTER"){
         btn.classList.add("big","green");
         btn.textContent = "Enter";
-        btn.addEventListener("click", submitGuess);
+        bindTap(btn, submitGuess);
       } else if(label === "BACK"){
         btn.classList.add("big","red");
         btn.textContent = "Back";
-        btn.addEventListener("click", backspace);
+        bindTap(btn, backspace);
       } else {
         btn.textContent = label;
-        btn.addEventListener("click", () => addLetter(label));
+        bindTap(btn, () => addLetter(label));
       }
+
       host.appendChild(btn);
     });
   });
@@ -708,13 +781,12 @@ function addLetter(ch){
   updateTile(row,col);
   col++;
 
-  // ✅ if user is filling far-right letters, help them by scrolling a bit
+  // If user is near the end, scroll right so they can see last tiles
   const sc = $("gridScroll");
   const grid = $("grid");
-  const rightEdge = grid.scrollWidth;
   const viewRight = sc.scrollLeft + sc.clientWidth;
-  if(viewRight < rightEdge && col >= Math.max(5, wordLen - 1)){
-    sc.scrollLeft = Math.max(0, rightEdge - sc.clientWidth);
+  if(viewRight < grid.scrollWidth - 10 && col >= Math.max(6, wordLen - 1)){
+    sc.scrollLeft = Math.max(0, grid.scrollWidth - sc.clientWidth);
   }
 }
 
@@ -726,32 +798,9 @@ function backspace(){
   updateTile(row,col);
 }
 
-function evaluateGuess(guess, ans){
-  const colors = Array(wordLen).fill("absent");
-  const counts = {};
-  for(let i=0;i<wordLen;i++){
-    const a = ans[i];
-    counts[a] = (counts[a] || 0) + 1;
-  }
-  for(let i=0;i<wordLen;i++){
-    if(guess[i] === ans[i]){
-      colors[i] = "correct";
-      counts[guess[i]]--;
-    }
-  }
-  for(let i=0;i<wordLen;i++){
-    if(colors[i] === "correct") continue;
-    const g = guess[i];
-    if(counts[g] > 0){
-      colors[i] = "present";
-      counts[g]--;
-    }
-  }
-  return colors;
-}
-
 function submitGuess(){
   if(locked) return;
+
   const incomplete = board[row].some(ch => !ch);
   if(incomplete){
     setMessage("Finish the row before pressing Enter.", "warn");
@@ -767,7 +816,7 @@ function submitGuess(){
   if(guess === answer){ endGame(true); return; }
 
   row++; col = 0;
-  $("gridScroll").scrollLeft = 0; // start of next row
+  $("gridScroll").scrollLeft = 0;
   if(row >= MAX_ROWS){ endGame(false); }
 }
 
@@ -836,6 +885,16 @@ document.addEventListener("keydown", (e) => {
   else if(k === "Backspace") backspace();
   else if(/^[a-zA-Z]$/.test(k)) addLetter(k.toUpperCase());
 });
+
+/* Update swipe hint on resize/orientation */
+window.addEventListener("resize", () => {
+  requestAnimationFrame(updateSwipeHint);
+  requestAnimationFrame(updateSwipeHint);
+}, {passive:true});
+window.addEventListener("orientationchange", () => {
+  setTimeout(updateSwipeHint, 60);
+  setTimeout(updateSwipeHint, 250);
+}, {passive:true});
 
 renderStats();
 newGame();
