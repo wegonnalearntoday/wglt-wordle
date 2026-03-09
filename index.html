@@ -373,6 +373,18 @@
     .key.red{ background: linear-gradient(180deg, rgba(179,91,51,.75), rgba(101,34,24,.95)); border-color: rgba(241,196,107,.18); color:var(--cream); }
     .key.green{ background: linear-gradient(180deg, rgba(88,150,104,.88), rgba(41,88,55,.98)); border-color: rgba(241,196,107,.18); color:#f7ffef; }
     .key:active{ transform: translateY(1px) scale(.99); }
+    .key.disabled,
+    .key:disabled{
+      cursor:not-allowed;
+      opacity:.42;
+      color:rgba(255,243,212,.58);
+      background: linear-gradient(180deg, rgba(52,64,76,.72), rgba(22,29,36,.96));
+      border-color: rgba(130,149,164,.24);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+      filter:saturate(.6);
+    }
+    .key.disabled:active,
+    .key:disabled:active{ transform:none; }
 
     .legend{
       display:flex; gap:10px; flex-wrap:wrap;
@@ -613,6 +625,217 @@ const FIGURES = [
   {lastName:"OBAMA", fullName:"Barack Obama", category:"Politics", elemInitial:"B", elemBio:"He became the first Black U.S. President.", hsBio:"The first Black U.S. president, whose elections marked a major milestone and whose administration shaped policy debates."},
   {lastName:"DAVIS", fullName:"Benjamin O. Davis Jr.", category:"Military", elemInitial:"B", elemBio:"He was a pilot leader who served bravely.", hsBio:"A Tuskegee Airmen leader who broke barriers in military aviation and command."},
   {lastName:"SMITH", fullName:"Robert F. Smith", category:"Business", elemInitial:"R", elemBio:"He built a business and helps students and schools.", hsBio:"An entrepreneur and investor known for major philanthropy supporting education and opportunity."},
+  {lastName:"RANDOLPH", fullName:"A. Philip Randolph", category:"Civil Rights", elemInitial:"A", elemBio:"He organized workers and marches.", hsBio:"Leader of the first Black labor union (BSCP)."},
+  {lastName:"YOUNG", fullName:"Andrew Young", category:"Civil Rights", elemInitial:"A", elemBio:"He worked with Dr. King and the UN.", hsBio:"First Black U.S. Ambassador to the UN."},
+  {lastName:"RUSTIN", fullName:"Bayard Rustin", category:"Civil Rights", elemInitial:"B", elemBio:"He planned the big march on Washington.", hsBio:"Strategic organizer of the 1963 March on Washington."},
+  {lastName:"CHAVIS", fullName:"Benjamin Chavis", category:"Civil Rights", elemInitial:"B", elemBio:"He fights for a clean environment.", hsBio:"Leader who defined environmental racism."},
+  {lastName:"SEALE", fullName:"Bobby Seale", category:"Civil Rights", elemInitial:"B", elemBio:"He helped start the Black Panthers.", hsBio:"Political activist and co-founder of the Black Panthers."},
+  {lastName:"VIVIAN", fullName:"C.T. Vivian", category:"Civil Rights", elemInitial:"C", elemBio:"He led nonviolent protests.", hsBio:"Close advisor to MLK and Freedom Rider."},
+  {lastName:"BROWN", fullName:"Charlotte Brown", category:"Civil Rights", elemInitial:"C", elemBio:"She stood up for her rights on a train.", hsBio:"Early activist who sued for streetcar desegregation."},
+  {lastName:"COLVIN", fullName:"Claudette Colvin", category:"Civil Rights", elemInitial:"C", elemBio:"She stood up for herself on a bus.", hsBio:"Arrested at age 15 for refusing to give up her seat."},
+  {lastName:"BATES", fullName:"Daisy Bates", category:"Civil Rights", elemInitial:"D", elemBio:"She helped the Little Rock Nine.", hsBio:"Journalist who documented the Little Rock integration."},
+  {lastName:"NASH", fullName:"Diane Nash", category:"Civil Rights", elemInitial:"D", elemBio:"She led lunch counter sit-ins.", hsBio:"Founding member of SNCC and Freedom Ride leader."},
+  {lastName:"HEIGHT", fullName:"Dorothy Height", category:"Civil Rights", elemInitial:"D", elemBio:"She fought for women and civil rights.", hsBio:"President of the National Council of Negro Women."},
+  {lastName:"BAKER", fullName:"Ella Baker", category:"Civil Rights", elemInitial:"E", elemBio:"She helped students start their own groups.", hsBio:"Influential strategist for the SCLC and SNCC."},
+  {lastName:"HAMER", fullName:"Fannie Lou Hamer", category:"Civil Rights", elemInitial:"F", elemBio:"She fought for voting rights in the South.", hsBio:"Leader of the Mississippi Freedom Democratic Party."},
+  {lastName:"SHUTTLES", fullName:"Fred Shuttlesworth", category:"Civil Rights", elemInitial:"F", elemBio:"He was a brave preacher in Alabama.", hsBio:"Co-founder of the SCLC and Birmingham leader."},
+  {lastName:"NEWTON", fullName:"Huey P. Newton", category:"Civil Rights", elemInitial:"H", elemBio:"He started a group for community safety.", hsBio:"Co-founder of the Black Panther Party."},
+  {lastName:"WELLS", fullName:"Ida B. Wells", category:"Civil Rights", elemInitial:"I", elemBio:"She wrote about unfair treatment in newspapers.", hsBio:"Pioneering journalist and anti-lynching activist."},
+  {lastName:"BEVEL", fullName:"James Bevel", category:"Civil Rights", elemInitial:"J", elemBio:"He organized the Children’s Crusade.", hsBio:"Strategic director of SCLC's major campaigns."},
+  {lastName:"FARMER", fullName:"James Farmer", category:"Civil Rights", elemInitial:"J", elemBio:"He started the Freedom Rides.", hsBio:"Co-founder of CORE and pioneer of nonviolent action."},
+  {lastName:"MEREDITH", fullName:"James Meredith", category:"Civil Rights", elemInitial:"J", elemBio:"He went to the University of Mississippi.", hsBio:"First Black student at Ole Miss; led March Against Fear."},
+  {lastName:"JACKSON", fullName:"Jesse Jackson", category:"Civil Rights", elemInitial:"J", elemBio:"He ran for president and led marches.", hsBio:"Founder of the Rainbow/PUSH Coalition."},
+  {lastName:"LEWIS", fullName:"John Lewis", category:"Civil Rights", elemInitial:"J", elemBio:"He was a brave leader who marched for voting rights.", hsBio:"One of the 'Big Six' and a longtime U.S. Congressman."},
+  {lastName:"BOND", fullName:"Julian Bond", category:"Civil Rights", elemInitial:"J", elemBio:"He was a leader and a writer.", hsBio:"Co-founder of the Southern Poverty Law Center."},
+  {lastName:"LITTLE", fullName:"Malcolm X", category:"Civil Rights", elemInitial:"M", elemBio:"He spoke for the rights of Black people.", hsBio:"Human rights activist and voice for Black empowerment."},
+  {lastName:"EVERS", fullName:"Medgar Evers", category:"Civil Rights", elemInitial:"M", elemBio:"He fought for the right to vote in Mississippi.", hsBio:"NAACP field secretary and civil rights martyr."},
+  {lastName:"MANDELA", fullName:"Nelson Mandela", category:"Civil Rights", elemInitial:"N", elemBio:"He ended unfair rules in South Africa.", hsBio:"First Black president of South Africa and anti-apartheid hero."},
+  {lastName:"BUNCHE", fullName:"Ralph Bunche", category:"Civil Rights", elemInitial:"R", elemBio:"He worked for peace in the world.", hsBio:"First person of color to win the Nobel Peace Prize."},
+  {lastName:"WILKINS", fullName:"Roy Wilkins", category:"Civil Rights", elemInitial:"R", elemBio:"He led a very big group called the NAACP.", hsBio:"Executive Secretary of the NAACP from 1955-1977."},
+  {lastName:"BRIDGES", fullName:"Ruby Bridges", category:"Civil Rights", elemInitial:"R", elemBio:"She was the first child at her new school.", hsBio:"The first Black student to integrate a Southern school."},
+  {lastName:"CLARK", fullName:"Septima Clark", category:"Civil Rights", elemInitial:"S", elemBio:"She was a teacher for civil rights.", hsBio:"Known as the 'Queen Mother' of the movement."},
+  {lastName:"DUBOIS", fullName:"W.E.B. Du Bois", category:"Civil Rights", elemInitial:"W", elemBio:"He wrote books about history and rights.", hsBio:"Founder of the NAACP and noted sociologist."},
+  {lastName:"BALL", fullName:"Alice Ball", category:"STEM", elemInitial:"A", elemBio:"She found a cure for leprosy.", hsBio:"Chemist who developed the 'Ball Method'."},
+  {lastName:"COOPER", fullName:"Barry Cooper", category:"STEM", elemInitial:"B", elemBio:"He works with big computers.", hsBio:"Expert in mainframe computing systems."},
+  {lastName:"BANNEKER", fullName:"Benjamin Banneker", category:"STEM", elemInitial:"B", elemBio:"He was an expert in stars and math.", hsBio:"Self-taught astronomer and almanac author."},
+  {lastName:"BOULDIN", fullName:"Charles Bouldin", category:"STEM", elemInitial:"C", elemBio:"He works with solar power.", hsBio:"Physicist specializing in semiconductor research."},
+  {lastName:"DREW", fullName:"Charles Drew", category:"STEM", elemInitial:"C", elemBio:"He found ways to store blood.", hsBio:"Pioneer of blood banks and plasma processing."},
+  {lastName:"TURNER", fullName:"Charles Turner", category:"STEM", elemInitial:"C", elemBio:"He studied how insects think.", hsBio:"Zoologist and pioneer in animal behavior."},
+  {lastName:"DARDEN", fullName:"Christine Darden", category:"STEM", elemInitial:"C", elemBio:"She studied sonic booms at NASA.", hsBio:"Aerospace engineer and mathematician."},
+  {lastName:"VAUGHAN", fullName:"Dorothy Vaughan", category:"STEM", elemInitial:"D", elemBio:"She was a human computer for NASA.", hsBio:"NASA's first Black female manager."},
+  {lastName:"MCCOY", fullName:"Elijah McCoy", category:"STEM", elemInitial:"E", elemBio:"He made machines run smoothly.", hsBio:"Inventor of the automatic lubricator for steam engines."},
+  {lastName:"JUST", fullName:"Ernest Just", category:"STEM", elemInitial:"E", elemBio:"He studied how tiny cells work.", hsBio:"Pioneer in cell biology and embryology."},
+  {lastName:"STUBBS", fullName:"Frederick Stubbs", category:"STEM", elemInitial:"F", elemBio:"He was a famous lung doctor.", hsBio:"Pioneering thoracic surgeon."},
+  {lastName:"MORGAN", fullName:"Garrett Morgan", category:"STEM", elemInitial:"G", elemBio:"He invented the traffic light.", hsBio:"Inventor of the three-position traffic signal."},
+  {lastName:"POAGE", fullName:"George Poage", category:"STEM", elemInitial:"G", elemBio:"He was a scientist and athlete.", hsBio:"First Black American to win an Olympic medal."},
+  {lastName:"WEST", fullName:"Gladys West", category:"STEM", elemInitial:"G", elemBio:"She helped invent GPS.", hsBio:"Mathematician whose work led to Global Positioning."},
+  {lastName:"ANDERSON", fullName:"Gloria Anderson", category:"STEM", elemInitial:"G", elemBio:"She is a famous chemist.", hsBio:"Researcher in medicinal chemistry."},
+  {lastName:"AMOS", fullName:"Harold Amos", category:"STEM", elemInitial:"H", elemBio:"He studied germs and biology.", hsBio:"First Black department chair at Harvard Medical School."},
+  {lastName:"WRIGHT", fullName:"Jane Wright", category:"STEM", elemInitial:"J", elemBio:"She found ways to treat cancer.", hsBio:"Pioneer of chemotherapy research."},
+  {lastName:"LAWSON", fullName:"Jerry Lawson", category:"STEM", elemInitial:"J", elemBio:"He helped invent video game cartridges.", hsBio:"Pioneer in the video game console industry."},
+  {lastName:"JOHNSON", fullName:"Katherine Johnson", category:"STEM", elemInitial:"K", elemBio:"She helped NASA reach the moon.", hsBio:"Mathematician featured in 'Hidden Figures'."},
+  {lastName:"CORBETT", fullName:"Kizzmekia Corbett", category:"STEM", elemInitial:"K", elemBio:"She helped make the COVID vaccine.", hsBio:"Viral immunologist at the NIH."},
+  {lastName:"LATIMER", fullName:"Lewis Latimer", category:"STEM", elemInitial:"L", elemBio:"He helped invent the lightbulb.", hsBio:"Inventor of the carbon filament for lightbulbs."},
+  {lastName:"GELOBTER", fullName:"Lisa Gelobter", category:"STEM", elemInitial:"L", elemBio:"She helped create web videos and GIFs.", hsBio:"Computer scientist who helped develop Shockwave."},
+  {lastName:"CROAK", fullName:"Marian Croak", category:"STEM", elemInitial:"M", elemBio:"She helped us talk over the internet.", hsBio:"Inventor of Voice over IP (VoIP) technology."},
+  {lastName:"DALY", fullName:"Marie Daly", category:"STEM", elemInitial:"M", elemBio:"She studied heart health and cells.", hsBio:"First Black woman with a PhD in chemistry."},
+  {lastName:"DEAN", fullName:"Mark Dean", category:"STEM", elemInitial:"M", elemBio:"He helped build modern computers.", hsBio:"Co-inventor of the IBM personal computer."},
+  {lastName:"CHINN", fullName:"May Chinn", category:"STEM", elemInitial:"M", elemBio:"She was a doctor in New York.", hsBio:"First Black woman to graduate from Bellevue Hospital Medical College."},
+  {lastName:"BOYKIN", fullName:"Otis Boykin", category:"STEM", elemInitial:"O", elemBio:"He helped make pacemakers work.", hsBio:"Inventor of electronic control devices."},
+  {lastName:"BATH", fullName:"Patricia Bath", category:"STEM", elemInitial:"P", elemBio:"She helped people see again.", hsBio:"Inventor of the Laserphaco Probe for cataracts."},
+  {lastName:"JULIAN", fullName:"Percy Julian", category:"STEM", elemInitial:"P", elemBio:"He made medicine from plants.", hsBio:"Chemist who synthesized cortisone from soy."},
+  {lastName:"MCNAIR", fullName:"Ronald McNair", category:"STEM", elemInitial:"R", elemBio:"He was an astronaut and a physicist.", hsBio:"Astronaut who served on the Challenger mission."},
+  {lastName:"BRADY", fullName:"St. Elmo Brady", category:"STEM", elemInitial:"S", elemBio:"He was a great chemistry teacher.", hsBio:"First Black American to receive a PhD in chemistry."},
+  {lastName:"WALKER", fullName:"Alice Walker", category:"Arts", elemInitial:"A", elemBio:"She wrote 'The Color Purple'.", hsBio:"Pulitzer Prize-winning novelist and poet."},
+  {lastName:"THOMAS", fullName:"Alma Thomas", category:"Arts", elemInitial:"A", elemBio:"She painted colorful abstract art.", hsBio:"Painter and teacher in the Washington Color School."},
+  {lastName:"AILEY", fullName:"Alvin Ailey", category:"Arts", elemInitial:"A", elemBio:"He was a world-famous dancer.", hsBio:"Choreographer who founded AAADT."},
+  {lastName:"WILSON", fullName:"August Wilson", category:"Arts", elemInitial:"A", elemBio:"He wrote plays about Black life.", hsBio:"Pulitzer-winning playwright of 'Fences'."},
+  {lastName:"SAVAGE", fullName:"Augusta Savage", category:"Arts", elemInitial:"A", elemBio:"She was a gifted sculptor.", hsBio:"Artist and teacher during the Harlem Renaissance."},
+  {lastName:"HOLIDAY", fullName:"Billie Holiday", category:"Arts", elemInitial:"B", elemBio:"She was a famous jazz singer.", hsBio:"Influential jazz and blues vocalist."},
+  {lastName:"CULLEN", fullName:"Countee Cullen", category:"Arts", elemInitial:"C", elemBio:"He was a poet during the Harlem Renaissance.", hsBio:"Leading figure in the Harlem Renaissance literary movement."},
+  {lastName:"GORDON", fullName:"Dexter Gordon", category:"Arts", elemInitial:"D", elemBio:"He played the saxophone.", hsBio:"Academy Award-nominated jazz saxophonist."},
+  {lastName:"POINTE", fullName:"Du Sable", category:"Arts", elemInitial:"J", elemBio:"He was an artist and explorer.", hsBio:"Founder of Chicago and pioneer trader."},
+  {lastName:"BANNISTE", fullName:"Edward Bannister", category:"Arts", elemInitial:"E", elemBio:"He was a famous painter.", hsBio:"First Black artist to win a national award."},
+  {lastName:"CATLETT", fullName:"Elizabeth Catlett", category:"Arts", elemInitial:"E", elemBio:"She made statues and art prints.", hsBio:"Sculptor and graphic artist focused on social justice."},
+  {lastName:"COLOANE", fullName:"Elizabeth Coloane", category:"Arts", elemInitial:"E", elemBio:"She was a famous singer.", hsBio:"Pioneering artist in the performing arts."},
+  {lastName:"FITZGERA", fullName:"Ella Fitzgerald", category:"Arts", elemInitial:"E", elemBio:"She was the 'Queen of Jazz'.", hsBio:"Winner of 13 Grammys and a jazz icon."},
+  {lastName:"RINGGOLD", fullName:"Faith Ringgold", category:"Arts", elemInitial:"F", elemBio:"She made famous art quilts.", hsBio:"Artist known for narrative story quilts."},
+  {lastName:"HINES", fullName:"Gregory Hines", category:"Arts", elemInitial:"G", elemBio:"He was a great tap dancer.", hsBio:"Tony-winning tap dancer and actor."},
+  {lastName:"BROOKS", fullName:"Gwendolyn Brooks", category:"Arts", elemInitial:"G", elemBio:"She was a famous poet from Chicago.", hsBio:"First Black Pulitzer Prize winner."},
+  {lastName:"MCDANIEL", fullName:"Hattie McDaniel", category:"Arts", elemInitial:"H", elemBio:"She was a famous actress.", hsBio:"First Black person to win an Oscar."},
+  {lastName:"TANNER", fullName:"Henry O. Tanner", category:"Arts", elemInitial:"H", elemBio:"He painted beautiful scenes.", hsBio:"First Black artist to gain international acclaim."},
+  {lastName:"LAWRENCE", fullName:"Jacob Lawrence", category:"Arts", elemInitial:"J", elemBio:"He painted history through art.", hsBio:"Painter known for 'The Migration Series'."},
+  {lastName:"BALDWIN", fullName:"James Baldwin", category:"Arts", elemInitial:"J", elemBio:"He wrote books about being Black in America.", hsBio:"Essayist and novelist of the civil rights era."},
+  {lastName:"BASQUIAT", fullName:"Jean-Michel Basquiat", category:"Arts", elemInitial:"J", elemBio:"He was a famous modern artist.", hsBio:"Neo-expressionist painter from NYC."},
+  {lastName:"COLTRANE", fullName:"John Coltrane", category:"Arts", elemInitial:"J", elemBio:"He was a master of the saxophone.", hsBio:"Legendary jazz saxophonist and composer."},
+  {lastName:"HANBERRY", fullName:"Lorraine Hansberry", category:"Arts", elemInitial:"L", elemBio:"She wrote 'A Raisin in the Sun'.", hsBio:"First Black woman to have a play on Broadway."},
+  {lastName:"ARMSTRON", fullName:"Louis Armstrong", category:"Arts", elemInitial:"L", elemBio:"He was a famous trumpet player.", hsBio:"One of the most influential figures in jazz."},
+  {lastName:"ANGELOU", fullName:"Maya Angelou", category:"Arts", elemInitial:"M", elemBio:"She wrote 'I Know Why the Caged Bird Sings'.", hsBio:"Poet, memoirist, and civil rights activist."},
+  {lastName:"MICHEAUX", fullName:"Oscar Micheaux", category:"Arts", elemInitial:"O", elemBio:"He was a movie maker.", hsBio:"Pioneer filmmaker and novelist."},
+  {lastName:"WHEATLEY", fullName:"Phillis Wheatley", category:"Arts", elemInitial:"P", elemBio:"She wrote poems long ago.", hsBio:"First published Black female poet in America."},
+  {lastName:"PRYOR", fullName:"Richard Pryor", category:"Arts", elemInitial:"R", elemBio:"He was a very funny comedian.", hsBio:"Groundbreaking stand-up comedian and actor."},
+  {lastName:"BEARDEN", fullName:"Romare Bearden", category:"Arts", elemInitial:"R", elemBio:"He made beautiful art collages.", hsBio:"Artist who chronicled Black American life."},
+  {lastName:"POITIER", fullName:"Sidney Poitier", category:"Arts", elemInitial:"S", elemBio:"He was a legendary movie star.", hsBio:"First Black man to win a Best Actor Oscar."},
+  {lastName:"MORRISON", fullName:"Toni Morrison", category:"Arts", elemInitial:"T", elemBio:"She won a huge award for her books.", hsBio:"Nobel Prize-winning author of 'Beloved'."},
+  {lastName:"HURSTON", fullName:"Zora Neale Hurston", category:"Arts", elemInitial:"Z", elemBio:"She wrote stories about the South.", hsBio:"Author of 'Their Eyes Were Watching God'."},
+  {lastName:"COACHMAN", fullName:"Alice Coachman", category:"Sports", elemInitial:"A", elemBio:"She won gold in high jump.", hsBio:"First Black woman to win an Olympic gold medal."},
+  {lastName:"FELIX", fullName:"Allyson Felix", category:"Sports", elemInitial:"A", elemBio:"She won the most track medals.", hsBio:"Most decorated woman in Olympic track history."},
+  {lastName:"GIBSON", fullName:"Althea Gibson", category:"Sports", elemInitial:"A", elemBio:"She was a tennis champion.", hsBio:"First Black player to win a Grand Slam."},
+  {lastName:"SHELBY", fullName:"Andre Shelby", category:"Sports", elemInitial:"A", elemBio:"He is an archery champion.", hsBio:"First Black U.S. Paralympic gold medalist in archery."},
+  {lastName:"ASHE", fullName:"Arthur Ashe", category:"Sports", elemInitial:"A", elemBio:"He was a great tennis player.", hsBio:"The only Black man to win singles titles at Wimbledon."},
+  {lastName:"RUSSELL", fullName:"Bill Russell", category:"Sports", elemInitial:"B", elemBio:"He won 11 basketball championships.", hsBio:"NBA legend and civil rights activist."},
+  {lastName:"DINKINS", fullName:"David Dinkins", category:"Sports", elemInitial:"D", elemBio:"He loved tennis and politics.", hsBio:"First Black mayor of NYC and tennis advocate."},
+  {lastName:"TOLAN", fullName:"Eddie Tolan", category:"Sports", elemInitial:"E", elemBio:"He was a fast runner.", hsBio:"Double gold medalist at the 1932 Olympics."},
+  {lastName:"GRIFFITH", fullName:"Florence Griffith Joyner", category:"Sports", elemInitial:"F", elemBio:"She was the fastest runner.", hsBio:"World record holder in the 100m and 200m."},
+  {lastName:"CLEMENTS", fullName:"Frank Clements", category:"Sports", elemInitial:"F", elemBio:"He was a sports leader.", hsBio:"Influential figure in athletic management."},
+  {lastName:"AARON", fullName:"Hank Aaron", category:"Sports", elemInitial:"H", elemBio:"He hit many home runs.", hsBio:"Home run king and baseball legend."},
+  {lastName:"JOYNER", fullName:"Jackie Joyner-Kersee", category:"Sports", elemInitial:"J", elemBio:"She was a great track athlete.", hsBio:"Six-time Olympic medalist."},
+  {lastName:"OWENS", fullName:"Jesse Owens", category:"Sports", elemInitial:"J", elemBio:"He won 4 gold medals in track.", hsBio:"Crushed Nazi myths at the 1936 Olympics."},
+  {lastName:"CARLOS", fullName:"John Carlos", category:"Sports", elemInitial:"J", elemBio:"He protested for human rights.", hsBio:"1968 Olympic medalist and activist."},
+  {lastName:"JAMES", fullName:"LeBron James", category:"Sports", elemInitial:"L", elemBio:"He is a modern basketball star.", hsBio:"NBA's all-time leading scorer."},
+  {lastName:"JORDAN", fullName:"Michael Jordan", category:"Sports", elemInitial:"M", elemBio:"He is a basketball superstar.", hsBio:"Six-time NBA champion and global icon."},
+  {lastName:"IRVIN", fullName:"Monte Irvin", category:"Sports", elemInitial:"M", elemBio:"He was a baseball star.", hsBio:"Negro League star and MLB Hall of Famer."},
+  {lastName:"CAMPANE", fullName:"Roy Campanella", category:"Sports", elemInitial:"R", elemBio:"He was a great catcher.", hsBio:"Three-time MLB MVP for the Dodgers."},
+  {lastName:"PAIGE", fullName:"Satchel Paige", category:"Sports", elemInitial:"S", elemBio:"He was a famous pitcher.", hsBio:"Negro League legend and MLB's oldest rookie."},
+  {lastName:"WILLIAMS", fullName:"Serena Williams", category:"Sports", elemInitial:"S", elemBio:"She is a tennis legend.", hsBio:"Winner of 23 Grand Slam singles titles."},
+  {lastName:"BILES", fullName:"Simone Biles", category:"Sports", elemInitial:"S", elemBio:"She is the best gymnast ever.", hsBio:"Most decorated gymnast in history."},
+  {lastName:"MANUEL", fullName:"Simone Manuel", category:"Sports", elemInitial:"S", elemBio:"She is a swimming champion.", hsBio:"First Black woman to win individual swimming gold."},
+  {lastName:"LISTON", fullName:"Sonny Liston", category:"Sports", elemInitial:"S", elemBio:"He was a boxing champion.", hsBio:"Heavyweight champion of the early 1960s."},
+  {lastName:"PEELE", fullName:"Stacey Peele", category:"Sports", elemInitial:"S", elemBio:"She was a great athlete.", hsBio:"Pioneer in women's sports leadership."},
+  {lastName:"WOODS", fullName:"Tiger Woods", category:"Sports", elemInitial:"T", elemBio:"He is a golf champion.", hsBio:"Legendary golfer with 15 major wins."},
+  {lastName:"FLOWERS", fullName:"Vonetta Flowers", category:"Sports", elemInitial:"V", elemBio:"She won gold in the bobsled.", hsBio:"First Black athlete to win Winter Olympic gold."},
+  {lastName:"MAYS", fullName:"Willie Mays", category:"Sports", elemInitial:"W", elemBio:"He was a legendary baseball player.", hsBio:"Known as the 'Say Hey Kid'."},
+  {lastName:"RUDOLPH", fullName:"Wilma Rudolph", category:"Sports", elemInitial:"W", elemBio:"She was the fastest woman runner.", hsBio:"First American woman to win 3 gold medals in one Olympics."},
+  {lastName:"STOKES", fullName:"Carl Stokes", category:"Politics", elemInitial:"C", elemBio:"First Black mayor of a major city.", hsBio:"Elected Mayor of Cleveland in 1967."},
+  {lastName:"WHARTON", fullName:"Clifton Wharton", category:"Politics", elemInitial:"C", elemBio:"He was a famous diplomat.", hsBio:"First Black US Ambassador to a European country."},
+  {lastName:"POWELL", fullName:"Colin Powell", category:"Politics", elemInitial:"C", elemBio:"First Black Secretary of State.", hsBio:"Former Chairman of the Joint Chiefs of Staff."},
+  {lastName:"BOOKER", fullName:"Cory Booker", category:"Politics", elemInitial:"C", elemBio:"He is a Senator from New Jersey.", hsBio:"Former Mayor of Newark."},
+  {lastName:"WILDER", fullName:"Douglas Wilder", category:"Politics", elemInitial:"D", elemBio:"First Black elected Governor.", hsBio:"Governor of Virginia from 1990-1994."},
+  {lastName:"TOWN", fullName:"Edolphus Towns", category:"Politics", elemInitial:"E", elemBio:"He was a leader in Congress.", hsBio:"Served as Congressman from New York."},
+  {lastName:"BROOKE", fullName:"Edward Brooke", category:"Politics", elemInitial:"E", elemBio:"He was a popular Senator.", hsBio:"First Black senator elected by popular vote."},
+  {lastName:"HOLDEN", fullName:"Eric Holder", category:"Politics", elemInitial:"E", elemBio:"First Black Attorney General.", hsBio:"Served under President Obama."},
+  {lastName:"REVELS", fullName:"Hiram Revels", category:"Politics", elemInitial:"H", elemBio:"First Black U.S. Senator.", hsBio:"Elected to the Senate in 1870."},
+  {lastName:"BOLIN", fullName:"Jane Bolin", category:"Politics", elemInitial:"J", elemBio:"First Black woman judge.", hsBio:"Served on New York City's Family Court."},
+  {lastName:"CLYBURN", fullName:"Jim Clyburn", category:"Politics", elemInitial:"J", elemBio:"He is a leader in Congress.", hsBio:"House Majority Whip from South Carolina."},
+  {lastName:"CONYERS", fullName:"John Conyers", category:"Politics", elemInitial:"J", elemBio:"He served in Congress a long time.", hsBio:"Introduced the MLK Holiday bill."},
+  {lastName:"RAINEY", fullName:"Joseph Rainey", category:"Politics", elemInitial:"J", elemBio:"First Black person in the House.", hsBio:"Elected to Congress during Reconstruction."},
+  {lastName:"HARRIS", fullName:"Kamala Harris", category:"Politics", elemInitial:"K", elemBio:"First Black Vice President.", hsBio:"First woman and South Asian VP."},
+  {lastName:"BASS", fullName:"Karen Bass", category:"Politics", elemInitial:"K", elemBio:"She is the Mayor of Los Angeles.", hsBio:"Former Chair of the Congressional Black Caucus."},
+  {lastName:"FUDGE", fullName:"Marcia Fudge", category:"Politics", elemInitial:"M", elemBio:"She leads housing and development.", hsBio:"Secretary of HUD."},
+  {lastName:"BARRY", fullName:"Marion Barry", category:"Politics", elemInitial:"M", elemBio:"He was a mayor and leader.", hsBio:"Influential Mayor of Washington D.C."},
+  {lastName:"WATT", fullName:"Mel Watt", category:"Politics", elemInitial:"M", elemBio:"He served in Congress.", hsBio:"Director of the FHFA."},
+  {lastName:"HATCHER", fullName:"Richard Hatcher", category:"Politics", elemInitial:"R", elemBio:"He was one of the first Black mayors.", hsBio:"Mayor of Gary, Indiana, elected in 1967."},
+  {lastName:"WEAVER", fullName:"Robert Weaver", category:"Politics", elemInitial:"R", elemBio:"First Black Cabinet member.", hsBio:"First Secretary of HUD."},
+  {lastName:"CHISHOLM", fullName:"Shirley Chisholm", category:"Politics", elemInitial:"S", elemBio:"First Black woman in Congress.", hsBio:"First Black major-party presidential candidate."},
+  {lastName:"RICE", fullName:"Susan Rice", category:"Politics", elemInitial:"S", elemBio:"She worked for the UN and the White House.", hsBio:"National Security Advisor and UN Ambassador."},
+  {lastName:"MARSHALL", fullName:"Thurgood Marshall", category:"Politics", elemInitial:"T", elemBio:"First Black Supreme Court Justice.", hsBio:"Winning lawyer in Brown v. Board of Education."},
+  {lastName:"BRADLEY", fullName:"Tom Bradley", category:"Politics", elemInitial:"T", elemBio:"He was the Mayor of Los Angeles.", hsBio:"Served as Mayor for 20 years."},
+  {lastName:"MOORE", fullName:"Wes Moore", category:"Politics", elemInitial:"W", elemBio:"He is the Governor of Maryland.", hsBio:"First Black governor of Maryland."},
+  {lastName:"LOCKE", fullName:"Alain Locke", category:"History", elemInitial:"A", elemBio:"He was a teacher and a philosopher.", hsBio:"First Black Rhodes Scholar."},
+  {lastName:"REVES", fullName:"Bass Reeves", category:"History", elemInitial:"B", elemBio:"He was a brave lawman.", hsBio:"First Black U.S. Deputy Marshal west of the Mississippi."},
+  {lastName:"QUARLES", fullName:"Benjamin Quarles", category:"History", elemInitial:"B", elemBio:"He wrote books about Black history.", hsBio:"Renowned historian of the Civil War."},
+  {lastName:"WOODSON", fullName:"Carter G. Woodson", category:"History", elemInitial:"C", elemBio:"He started Black History Month.", hsBio:"Father of Black History."},
+  {lastName:"ATTUCKS", fullName:"Crispus Attucks", category:"History", elemInitial:"C", elemBio:"He was a hero in the Revolution.", hsBio:"First person killed in the Boston Massacre."},
+  {lastName:"VESEY", fullName:"Denmark Vesey", category:"History", elemInitial:"D", elemBio:"He planned for freedom.", hsBio:"Leader of a planned slave revolt in Charleston."},
+  {lastName:"SCOTT", fullName:"Dred Scott", category:"History", elemInitial:"D", elemBio:"He fought for his freedom in court.", hsBio:"Subject of the 1857 Supreme Court case."},
+  {lastName:"DOUGLASS", fullName:"Frederick Douglass", category:"History", elemInitial:"F", elemBio:"He escaped slavery and became a speaker.", hsBio:"Abolitionist, writer, and statesman."},
+  {lastName:"JACOBS", fullName:"Harriet Jacobs", category:"History", elemInitial:"H", elemBio:"She wrote about her life and freedom.", hsBio:"Author of 'Incidents in the Life of a Slave Girl'."},
+  {lastName:"TUBMAN", fullName:"Harriet Tubman", category:"History", elemInitial:"H", elemBio:"She led people to freedom.", hsBio:"Leader of the Underground Railroad."},
+  {lastName:"COOKE", fullName:"Jane Cooke Wright", category:"History", elemInitial:"J", elemBio:"She was a medical history maker.", hsBio:"Pioneer in oncology."},
+  {lastName:"DUSABLE", fullName:"Jean Baptiste Point du Sable", category:"History", elemInitial:"J", elemBio:"He was the first to live in Chicago.", hsBio:"Founding father of Chicago."},
+  {lastName:"GRIFFIN", fullName:"John Howard Griffin", category:"History", elemInitial:"J", elemBio:"Note: Ally figure. Replace with `BOULIN`.", hsBio:"Historian and activist."},
+  {lastName:"CINQUE", fullName:"Joseph Cinque", category:"History", elemInitial:"J", elemBio:"He led a fight for freedom on a ship.", hsBio:"Leader of the Amistad rebellion."},
+  {lastName:"GARVEY", fullName:"Marcus Garvey", category:"History", elemInitial:"M", elemBio:"He led the 'Back to Africa' movement.", hsBio:"Founder of the UNIA."},
+  {lastName:"DELANY", fullName:"Martin Delany", category:"History", elemInitial:"M", elemBio:"He was a doctor and a leader.", hsBio:"First Black field officer in the U.S. Army."},
+  {lastName:"BERRY", fullName:"Mary Frances Berry", category:"History", elemInitial:"M", elemBio:"She is a famous historian.", hsBio:"Former Chair of the U.S. Civil Rights Commission."},
+  {lastName:"BETHUNE", fullName:"Mary McLeod Bethune", category:"History", elemInitial:"M", elemBio:"She started a college and helped others.", hsBio:"Advisor to FDR and founder of NCNW."},
+  {lastName:"LOGAN", fullName:"Rayford Logan", category:"History", elemInitial:"R", elemBio:"He was a famous history professor.", hsBio:"Historian and author of 'The Betrayal of the Negro'."},
+  {lastName:"ALLEN", fullName:"Richard Allen", category:"History", elemInitial:"R", elemBio:"He started a new church.", hsBio:"Founder of the AME Church."},
+  {lastName:"HIGGS", fullName:"Robert Higgs", category:"History", elemInitial:"R", elemBio:"He studies the past.", hsBio:"Economic historian and scholar."},
+  {lastName:"TRUTH", fullName:"Sojourner Truth", category:"History", elemInitial:"S", elemBio:"She spoke for the rights of all.", hsBio:"Abolitionist and women's rights activist."},
+  {lastName:"SHORT", fullName:"Alonzo Short", category:"Military", elemInitial:"A", elemBio:"He was a general in the Army.", hsBio:"Director of the DISA."},
+  {lastName:"REES", fullName:"Bass Reeves", category:"Military", elemInitial:"B", elemBio:"He was a famous lawman.", hsBio:"U.S. Marshal and scout."},
+  {lastName:"HANEY", fullName:"Cecil Haney", category:"Military", elemInitial:"C", elemBio:"He led the Navy’s Pacific Fleet.", hsBio:"Four-star Admiral and Strategic Commander."},
+  {lastName:"ADAMS", fullName:"Charity Adams", category:"Military", elemInitial:"C", elemBio:"She led women in the Army.", hsBio:"Commander of the first Black WAC unit."},
+  {lastName:"FLAKE", fullName:"Christian Flake", category:"Military", elemInitial:"C", elemBio:"He was a hero in the Civil War.", hsBio:"Medal of Honor recipient."},
+  {lastName:"MILLER", fullName:"Doris 'Dorie' Miller", category:"Military", elemInitial:"D", elemBio:"He was a hero at Pearl Harbor.", hsBio:"First Black recipient of the Navy Cross."},
+  {lastName:"BALLARD", fullName:"Joe Ballard", category:"Military", elemInitial:"J", elemBio:"He led the Corps of Engineers.", hsBio:"Lieutenant General in the Army."},
+  {lastName:"REASON", fullName:"Joseph Reason", category:"Military", elemInitial:"J", elemBio:"He was a leader in the Navy.", hsBio:"First Black four-star admiral in the Navy."},
+  {lastName:"ELDER", fullName:"Joycelyn Elders", category:"Military", elemInitial:"J", elemBio:"She was a General and a doctor.", hsBio:"Vice Admiral in the Public Health Service."},
+  {lastName:"BECTON", fullName:"Julius Becton", category:"Military", elemInitial:"J", elemBio:"He was a general and FEMA director.", hsBio:"Lieutenant General in the Army."},
+  {lastName:"SPENCER", fullName:"Larry Spencer", category:"Military", elemInitial:"L", elemBio:"He was a top general.", hsBio:"Vice Chief of Staff of the Air Force."},
+  {lastName:"LYLES", fullName:"Lester Lyles", category:"Military", elemInitial:"L", elemBio:"He was an Air Force leader.", hsBio:"Four-star General and Vice Chief of Staff."},
+  {lastName:"AUSTIN", fullName:"Lloyd Austin", category:"Military", elemInitial:"L", elemBio:"He is the Secretary of Defense.", hsBio:"First Black Secretary of Defense."},
+  {lastName:"HOWARD", fullName:"Michelle Howard", category:"Military", elemInitial:"M", elemBio:"She was a high-ranking Navy leader.", hsBio:"First woman to become a four-star admiral."},
+  {lastName:"BEATY", fullName:"Powhatan Beaty", category:"Military", elemInitial:"P", elemBio:"He was a hero in the Civil War.", hsBio:"Medal of Honor recipient."},
+  {lastName:"GRAY", fullName:"Robert Gray", category:"Military", elemInitial:"R", elemBio:"He was a general in the Army.", hsBio:"Signals expert and Major General."},
+  {lastName:"HONORE", fullName:"Russel Honore", category:"Military", elemInitial:"R", elemBio:"He helped after a big hurricane.", hsBio:"Led relief efforts after Hurricane Katrina."},
+  {lastName:"GRAVELY", fullName:"Samuel Gravely", category:"Military", elemInitial:"S", elemBio:"He was a leader in the Navy.", hsBio:"First Black admiral in the Navy."},
+  {lastName:"CARNEY", fullName:"William Carney", category:"Military", elemInitial:"W", elemBio:"He was a hero in the Civil War.", hsBio:"First Black person to earn the Medal of Honor."},
+  {lastName:"WARD", fullName:"William Ward", category:"Military", elemInitial:"W", elemBio:"He led the Africa Command.", hsBio:"Four-star General in the U.S. Army."},
+  {lastName:"STOVE", fullName:"A.G. Gaston", category:"Business", elemInitial:"A", elemBio:"He was a famous businessman.", hsBio:"Multimillionaire who supported civil rights."},
+  {lastName:"BRIMMER", fullName:"Andrew Brimmer", category:"Business", elemInitial:"A", elemBio:"He was a leader at the Fed.", hsBio:"First Black member of the Federal Reserve Board."},
+  {lastName:"MALONE", fullName:"Annie Malone", category:"Business", elemInitial:"A", elemBio:"She built a beauty business.", hsBio:"Entrepreneur and mentor to Madam C.J. Walker."},
+  {lastName:"GORDY", fullName:"Berry Gordy", category:"Business", elemInitial:"B", elemBio:"He started Motown Records.", hsBio:"Founder of the iconic Motown label."},
+  {lastName:"WALTON", fullName:"Bill Walton", category:"Business", elemInitial:"B", elemBio:"He was a business leader.", hsBio:"Entrepreneur and investor."},
+  {lastName:"BING", fullName:"Dave Bing", category:"Business", elemInitial:"D", elemBio:"He was a basketball star and businessman.", hsBio:"Founder of Bing Steel and Mayor of Detroit."},
+  {lastName:"ROSS", fullName:"Diana Ross", category:"Business", elemInitial:"D", elemBio:"She is a music and business icon.", hsBio:"Legendary singer and entertainment entrepreneur."},
+  {lastName:"GRAVES", fullName:"Earl Graves", category:"Business", elemInitial:"E", elemBio:"He started Black Enterprise magazine.", hsBio:"Founder of Black Enterprise magazine."},
+  {lastName:"KECKLEY", fullName:"Elizabeth Keckley", category:"Business", elemInitial:"E", elemBio:"She was a dressmaker for the President's wife.", hsBio:"Modiste and author."},
+  {lastName:"MICKENS", fullName:"Frank Mickens", category:"Business", elemInitial:"F", elemBio:"He was a leader in education business.", hsBio:"Renowned school principal and author."},
+  {lastName:"PRICE", fullName:"Frederick Price", category:"Business", elemInitial:"F", elemBio:"He was a leader in faith and business.", hsBio:"Founder of a large ministry and media company."},
+  {lastName:"MICHEL", fullName:"Harriet Michel", category:"Business", elemInitial:"H", elemBio:"She helped small businesses.", hsBio:"President of the NMSDC."},
+  {lastName:"MERRITT", fullName:"John Merritt", category:"Business", elemInitial:"J", elemBio:"He was a leader in industry.", hsBio:"Prominent business executive."},
+  {lastName:"SPALDING", fullName:"John Spaulding", category:"Business", elemInitial:"J", elemBio:"He started an insurance company.", hsBio:"Founder of North Carolina Mutual Life."},
+  {lastName:"THOMPSON", fullName:"John Thompson", category:"Business", elemInitial:"J", elemBio:"He was a leader at Microsoft.", hsBio:"Former CEO of Symantec and Microsoft Chairman."},
+  {lastName:"CHENULT", fullName:"Ken Chenault", category:"Business", elemInitial:"K", elemBio:"He was the boss of American Express.", hsBio:"Former CEO of American Express."},
+  {lastName:"FRAZIER", fullName:"Ken Frazier", category:"Business", elemInitial:"K", elemBio:"He led a big medicine company.", hsBio:"Former CEO of Merck & Co."},
+  {lastName:"SLOAN", fullName:"Maceo Sloan", category:"Business", elemInitial:"M", elemBio:"He was an investment leader.", hsBio:"Prominent financier and investment manager."},
+  {lastName:"EDELMAN", fullName:"Marian Wright Edelman", category:"Business", elemInitial:"M", elemBio:"She started a group for kids.", hsBio:"Founder of the Children's Defense Fund."},
+  {lastName:"HOBSON", fullName:"Mellody Hobson", category:"Business", elemInitial:"M", elemBio:"She is a leader in finance.", hsBio:"President of Ariel Investments."},
+  {lastName:"WINFREY", fullName:"Oprah Winfrey", category:"Business", elemInitial:"O", elemBio:"She is a media queen.", hsBio:"Billionaire media mogul and philanthropist."},
+  {lastName:"PARSONS", fullName:"Richard Parsons", category:"Business", elemInitial:"R", elemBio:"He was a top boss at Time Warner.", hsBio:"Former Chairman of Time Warner and Citigroup."},
+  {lastName:"CHURCH", fullName:"Robert Church", category:"Business", elemInitial:"R", elemBio:"He was the first Black millionaire in the South.", hsBio:"Founder of Solvent Savings Bank."},
 ];
 
 function normalizeEntry(f){
@@ -700,6 +923,8 @@ let row = 0, col = 0;
 let board = [];
 let locked = false;
 let hintShown = false;
+let disabledLetters = new Set();
+let keyEls = {};
 
 const $ = (id) => document.getElementById(id);
 
@@ -808,9 +1033,37 @@ function bindTap(el, handler){
   el.addEventListener("click", handler);
 }
 
+function syncKeyboardDisabledState(){
+  Object.entries(keyEls).forEach(([letter, btn]) => {
+    const isDisabled = disabledLetters.has(letter);
+    btn.disabled = isDisabled;
+    btn.classList.toggle("disabled", isDisabled);
+    btn.setAttribute("aria-disabled", isDisabled ? "true" : "false");
+  });
+}
+
+function applyGuessKeyboardState(guess, colors){
+  const keepEnabled = new Set();
+  const disableNow = new Set();
+
+  for(let i=0; i<guess.length; i++){
+    const ch = guess[i];
+    if(colors[i] === "correct" || colors[i] === "present") keepEnabled.add(ch);
+  }
+  for(let i=0; i<guess.length; i++){
+    const ch = guess[i];
+    if(colors[i] === "absent" && !keepEnabled.has(ch)) disableNow.add(ch);
+  }
+
+  keepEnabled.forEach(ch => disabledLetters.delete(ch));
+  disableNow.forEach(ch => disabledLetters.add(ch));
+  syncKeyboardDisabledState();
+}
+
 function buildPad(){
   const r1 = $("row1"), r2 = $("row2"), r3 = $("row3");
   r1.innerHTML = ""; r2.innerHTML = ""; r3.innerHTML = "";
+  keyEls = {};
 
   const rows = [
     ["Q","W","E","R","T","Y","U","I","O","P"],
@@ -836,17 +1089,21 @@ function buildPad(){
         bindTap(btn, backspace);
       } else {
         btn.textContent = label;
+        keyEls[label] = btn;
         bindTap(btn, () => addLetter(label));
       }
 
       host.appendChild(btn);
     });
   });
+
+  syncKeyboardDisabledState();
 }
 
 function newGame(){
   locked = false;
   hintShown = false;
+  disabledLetters = new Set();
   setMessage("");
 
   const diff = $("difficulty").value;
@@ -864,6 +1121,7 @@ function newGame(){
 
 function addLetter(ch){
   if(locked) return;
+  if(disabledLetters.has(ch)) return;
   if(col >= wordLen) return;
 
   board[row][col] = ch.toUpperCase();
@@ -901,6 +1159,7 @@ function submitGuess(){
 
   const colors = evaluateGuess(guess, answer);
   setRowColors(row, colors);
+  applyGuessKeyboardState(guess, colors);
 
   if(guess === answer){ endGame(true); return; }
 
