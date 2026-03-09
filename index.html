@@ -109,9 +109,11 @@
     header{
       padding:18px 18px 14px 18px;
       display:flex;
-      gap:12px;
-      align-items:flex-start;
-      justify-content:space-between;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      gap:10px;
       border-bottom:1px solid rgba(241,196,107,.16);
       flex-wrap:wrap;
       position:relative;
@@ -119,7 +121,7 @@
       background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
     }
 
-    .titleWrap{ display:flex; flex-direction:column; gap:8px; max-width: 760px; }
+    .titleWrap{ display:flex; flex-direction:column; gap:8px; max-width:760px; align-items:center; text-align:center; }
     .title{
       display:flex; align-items:center; gap:12px; flex-wrap:wrap;
       font-family:var(--displayFont);
@@ -165,7 +167,7 @@
     }
     .sub strong{ color:var(--cream); }
 
-    .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+    .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
 
     .select{
       padding:11px 12px;
@@ -478,7 +480,7 @@
     }
     .modalActions{
       padding:14px 16px 16px 16px;
-      display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
       border-top:1px solid rgba(241,196,107,.10);
     }
 
@@ -505,7 +507,7 @@
           <span class="badge"></span>
         </div>
         <div class="sub">
-          Guess the <strong>LAST NAME</strong>
+          Guess the <strong>LAST NAME</strong> of the Black Historical Figure.
         </div>
       </div>
 
@@ -839,9 +841,26 @@ const FIGURES = [
 ];
 
 function normalizeEntry(f){
+  const rawLastName = String(f.lastName || "").toUpperCase().replace(/[^A-Z]/g,"");
+  const fullName = String(f.fullName || "").trim();
+  const nameParts = fullName.match(/[A-Za-z']+/g) || [];
+  const fullNameLastToken = nameParts.length ? nameParts[nameParts.length - 1].toUpperCase().replace(/[^A-Z]/g, "") : "";
+
+  /*
+     Fix partial roster entries like TOWN -> TOWNS when the final token in the
+     figure's full name is clearly the intended playable surname and still fits
+     our 4-8 letter Wordle rule.
+  */
+  const correctedLastName = (
+    fullNameLastToken &&
+    /^[A-Z]{4,8}$/.test(fullNameLastToken) &&
+    rawLastName &&
+    fullNameLastToken.startsWith(rawLastName)
+  ) ? fullNameLastToken : rawLastName;
+
   return {
-    lastName: String(f.lastName || "").toUpperCase().replace(/[^A-Z]/g,""),
-    fullName: String(f.fullName || "").trim(),
+    lastName: correctedLastName,
+    fullName,
     category: String(f.category || "History").trim(),
     elemInitial: String(f.elemInitial || "").trim(),
     elemBio: String(f.elemBio || "").trim(),
@@ -1187,9 +1206,9 @@ function showModal(win){
     $("modalSub").textContent = `${figure.fullName} • (${figure.category})`;
     $("modalBio").textContent = (diff === "elem") ? figure.elemBio : figure.hsBio;
   } else {
-    $("modalTitle").textContent = "❌ Out of tries";
-    $("modalSub").textContent = `Answer: ${answer} • ${figure.fullName} • (${figure.category})`;
-    $("modalBio").textContent = (diff === "elem") ? figure.elemBio : figure.hsBio;
+    $("modalTitle").textContent = "Better luck next time";
+    $("modalSub").textContent = "No worries. Tap Next Figure to keep the game moving.";
+    $("modalBio").textContent = "One missed word doesn't take away all the wins your about to bank. You'll start a new streak before you know it!";
   }
   $("overlay").classList.add("show");
 }
