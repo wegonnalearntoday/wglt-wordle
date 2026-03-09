@@ -424,8 +424,19 @@
       border:1px solid rgba(241,196,107,.14);
       background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(255,255,255,.03));
     }
-    .badgeGrid{
+    .badgeScroll{
       margin-top:10px;
+      max-height:260px;
+      overflow-y:auto;
+      overflow-x:hidden;
+      padding-right:6px;
+      scrollbar-width:thin;
+      scrollbar-color: rgba(241,196,107,.55) rgba(255,255,255,.05);
+    }
+    .badgeScroll::-webkit-scrollbar{ width:8px; }
+    .badgeScroll::-webkit-scrollbar-track{ background: rgba(255,255,255,.04); border-radius:999px; }
+    .badgeScroll::-webkit-scrollbar-thumb{ background: linear-gradient(180deg, rgba(241,196,107,.82), rgba(179,91,51,.72)); border-radius:999px; }
+    .badgeGrid{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:10px;
@@ -482,14 +493,54 @@
       border-top:1px solid rgba(241,196,107,.10);
     }
 
-    @media (max-width: 520px){
-      header{ padding: 12px; }
-      main{ padding: 12px; gap: 12px; }
-      .card{ padding: 12px; }
-      .hintBox{ font-size: 12px; }
-      :root{ --gap: 8px; }
+    @media (max-width: 680px){
+      body{ padding:10px; }
+      .app{ border-radius:18px; }
+      header{ padding:12px 10px; }
+      main{ padding:10px; gap:10px; }
+      .card{ padding:10px; border-radius:18px; }
+      .gridWrap{ min-height:auto; }
+      .controls{
+        width:100%;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+      }
+      .select, .btn, .pill{ width:100%; }
+      .pill{ justify-content:center; text-align:center; }
+      .select, .btn{ min-height:44px; }
+      .pad{ width:100%; gap:8px; }
+      .padRow{ gap:5px; }
+      .badgeScroll{ max-height:220px; }
+      .badgeGrid{ grid-template-columns:1fr; }
+      .statsGrid{ gap:8px; }
+      :root{
+        --gap: 7px;
+        --tile: clamp(34px, 10vw, 46px);
+        --tileFont: clamp(13px, 4vw, 18px);
+        --keyH: 42px;
+        --keyW: clamp(24px, 7vw, 32px);
+        --keyFont: 12px;
+      }
+      .key{ padding:8px 6px; border-radius:12px; }
+      .key.big{ min-width:58px; }
+      .legend{ gap:8px; font-size:11px; }
+      .hintBox{ font-size:12px; }
       .title{ font-size:clamp(21px, 7vw, 28px); }
       .title::before{ width:100%; justify-content:center; }
+      .sub{ font-size:13px; }
+      .stat{ padding:10px; }
+      .stat .value{ font-size:20px; }
+      .modalBody{ padding:12px; }
+      .modalActions{ padding:12px; }
+    }
+
+    @media (max-width: 420px){
+      body{ padding:8px; }
+      .controls{ grid-template-columns:1fr; }
+      .statsGrid{ grid-template-columns:1fr 1fr; }
+      .title{ gap:8px; }
+      .badge{ font-size:11px; padding:6px 10px; }
     }
   </style>
 </head>
@@ -570,7 +621,7 @@
             <span style="color:var(--muted); font-size:12px;">3 Bronze • 5 Silver • 7 Gold</span>
           </div>
 
-          <div class="badgeGrid" id="badgeGrid"></div>
+          <div class="badgeScroll"><div class="badgeGrid" id="badgeGrid"></div></div>
         </div>
 
         <div class="hintBox" style="margin-top:10px;">
